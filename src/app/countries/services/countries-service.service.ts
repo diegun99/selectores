@@ -1,18 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Regions } from '../interfaces/country.interfaces';
+import { Region, SmallCountry } from '../interfaces/country.interfaces';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CountriesService {
 
-  private _regions : Regions[] = [Regions.Africa,Regions.Americas,Regions.Asia,Regions.Europa,Regions.Oceania];
+  private baseUrl = 'https://restcountries.com/v3.1'
+  private _regions : Region[] = [Region.Africa,Region.Americas,Region.Asia,Region.Europa,Region.Oceania];
 
   constructor(
-    
+    private http : HttpClient
   ) { }
 
-  get regions() : Regions[] {
+  get regions() : Region[] {
  return [...this._regions];// el spread convierte esto en un arreglo diferente al original para no alterarlo
   }
+
+  // getCountriesByRegion(region : Region) : Observable<SmallCountry[]>{
+  //     return []
+  // }
 }
