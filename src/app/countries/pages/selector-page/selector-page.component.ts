@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CountriesService } from '../../services/countries-service.service';
-import { Region } from '../../interfaces/country.interfaces';
+import { Region, SmallCountry } from '../../interfaces/country.interfaces';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-selector-page',
@@ -10,6 +11,8 @@ import { Region } from '../../interfaces/country.interfaces';
 })
 export class SelectorPageComponent implements OnInit {
 
+
+  countriesByRegion : SmallCountry[] = [];
   public myForm : FormGroup = this.fb.group(
     {
       region : ['',Validators.required],
@@ -20,7 +23,7 @@ export class SelectorPageComponent implements OnInit {
 
   constructor(
 private fb : FormBuilder,
-private _countriesService : CountriesService
+private countriesService : CountriesService
   ){}
 
 
@@ -29,13 +32,19 @@ private _countriesService : CountriesService
   }
 
   get regions() : Region[]{
-   return  this._countriesService.regions; 
+   return  this.countriesService.regions; 
   }
 
-   onRegionChange() : void{// es conveniente que cuando se suscriba uno a esta clase de motodos, y se destruya el componente, debe destruirse tambien estas subscripciones de manwera manual
-    this.myForm.get('region')!.valueChanges.subscribe(
-region => region
-  )
+  onRegionChange(): void {// es conveniente que cuando se suscriba uno a esta clase de motodos, y se destruya el componente, debe destruirse tambien estas subscripciones de manwera manual
+    this.myForm.get('region')!.valueChanges
+      .pipe(
+        switchMap(
+          region => this.countriesService.getCountriesByRegion(region)
+        ) // recibe el valor de un observable,para suscribirse a otro observable
+      )
+      .subscribe(
+        countries => this.countriesByRegion = countries
+      )
   }
 
 }
